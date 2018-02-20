@@ -1,4 +1,7 @@
 c++课程第一天。
 学习了git，将putty换成xshell并安装了vundle等工具。
-试着用git创建两个远程库，问题重重，真让人头大。
-今天是破五，晚上准备吃火锅。
+试着用git创建两个远程库，遇到了一个问题。
+在github上new repository时如果勾选README选项会自动生成一个readme文件。
+此时如果在linux下init之后直接push会报错，需要用git pull更新本地版本库之后在push。
+
+今天是破五，晚上吃了火锅。
