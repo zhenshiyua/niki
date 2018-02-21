@@ -1,0 +1,108 @@
+2018年2月21日，星期三，小雨转多云，c++课程学习第二天。
+
+1	 extern关键字
+	(1) extern "C" void func(int a,int b);    告诉编译器在编译func时按照标准C的规则编译而不是C++，因为C++支持函数重载。
+	(2) extern 不与 "C" 连用时，作用为 声明函数或全局变量的作用范围。
+		extern char g_str[]="123456"  //注意 将全局变量的声明和定义放在一起，相当于没有extern。只在头文件中做声明才是聪明的做法。
+	(3) 实现C与C++混合编程。  C++实现函数重载的原理为：在编译时，将函数名和参数联合起来生成一个新的函数名，可能会造成链接时找不到对应函数的情况。所以需要用到混合编程。
+	#ifdef __cplusplus
+	extern "C"
+	{
+	#endif
+		int add(int x,int y)	//例子函数
+		{
+			return x + y;
+		}
+	#ifdef __cplusplus
+	}
+	#endif
+	(4) extern 和 static
+		extern 表明该变量在别的地方已经定义过了，在这里要使用那个变量。
+		static 表示静态的变量，分配内存的时候，存储在静态区，不存储在栈空间上。
+		static 修饰的全局变量声明和定义同时进行。
+		static 修饰全局变量的作用域只能是本身的编译单元，其他的编译单元看不到。
+		extern 和 static 不能同时修饰一个变量。
+		一般定义static全局变量时，都把他放在源文件中而不是头文件中，以防止信息污染。
+	(5) extern 和 const
+		C++中const修饰的全局变量拥有和static相同的特性，即他们只能作用于本编译模块中，但是const可以和extern连用来声明该常量可以用于其他编译模块中。
+		如 extern const char g_star[];
+		原文件中只要定义 const char g_star[]="123456"; 即可。
+		const单独使用时和static相同，与extern一起时，就拥有extern的特性了。
+
+2	namespace
+		namespace first
+		{
+			int x = 5;
+			int y = 10;
+		}
+	(1) using first::x;  //从namespace中引入名字到当前声明区域。
+		using namespace first; //导入整个namespace。
+	(2) namespace支持嵌套。
+		namespace first
+		{
+			int x = 5;
+			int y = 10;
+			namespace second
+			{
+				double a = 1.0;
+				void hello();
+			}
+			void second::hello()
+			{
+				std::cout<<"hello world!"<<std::endl;
+			}
+		}
+	(3) namespace支持别名。
+		namespace f = first;
+	(4) namespace提供了单独的作用域，类似静态全局声明，可以使用未命名的namespace定义来实现。
+		namespace{int count = 0;}
+3	const关键字
+	(1) const 修饰常量
+		const int a = 10;
+		int const a = 10;
+		以上两种相同。
+	(2) const 修饰指针
+		int a = 10;
+		const int* p = &a;	
+		int const* p = &a;  //指针指向的内容不能变。
+		以上两种相同，const位于*左侧，就是用来修饰指针所指向的变量，即指针指向常量。
+		int* const p = &a;	//指针本身不能变。
+		const位于*右侧，就是修饰指针本身，即指针本身是常量。
+		const int* const p = &a;
+		int const* const p = &a;  //指针和指向的内容都不能变。
+		以上两种相同。
+	(3) const 修饰引用
+		int a = 10;
+		const int& b = a;
+		int const& b = a;
+		以上两种相同。
+	(4) const 修饰函数参数
+		void func(const int& n)  //用const修饰函数参数，传递过来的参数在函数内不可以改变。
+		{
+			n = 10;		//编译错误
+		}
+	(5) const 修饰函数返回值
+		const int* func() //返回的指针所指向的内容不能修改    //用const修饰函数返回值的含义和用const修饰普通变量以及指针的含义基本相同。
+		{
+			return p;
+		}
+	(6) const 修饰类成员变量  //关于类的知识待以后更新
+	(7) const与宏定义的区别
+		#define PI 3.1415926
+		const double PI = 3,1415926;
+		const常量有数据类型，而宏常量你没有数据类型。编译器可以对前者进行类型安全检查，而对后者只进行字符替换。没有类型安全检查，在字符替换的时候很可能出错。
+		const常量从汇编角度来看，只给出对应的内存地址，而不是像#define一样给出立即数，所以，const定义的常量在运行程序运行过程中只有一份拷贝，而#define定义的常量在内存中有若干拷贝。
+		编译器通常不为const常量分配存储空间，而是将它们保存在符号表中，这使他成为了一个编译期间的常量，没有了存储与都内存的操作，使用它的效率就很高。
+	(8) const_cast
+		const_cast运算符用来修改类型的const或volatile属性。
+		一 常量指针被转化成非常量的指针，并且仍然指向原来的对象。
+		二 常量引用被转化成非常量的引用，并且仍然指向原来的对象。
+		void func()
+		{
+			const int a =10;
+			int* p = const_cast<int*> (&a);
+			*p = 20;
+			std::cout<<*p;  //20。
+			std::cout<<a;  //10，    原理二。
+		}
+		
